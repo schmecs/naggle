@@ -4,11 +4,11 @@ import android.app.Application
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import java.util.*
-import kotlin.concurrent.timerTask
+
 
 const val CHANNEL_ID = "my channel"
 
@@ -23,19 +23,28 @@ class NaggleApp : Application() {
 
         createNotificationChannel()
 
-        Timer().schedule(timerTask {
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(1, getNotification())
-        }, 3000)
+        NagRepository.currentNag.observeForever { nag ->
+            nag?.let { sendNotification(nag) }
+        }
+        NagRepository.refreshAllNags()
     }
 
-    private fun getNotification(): Notification {
+    private fun sendNotification(nag: Nag) {
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).notify(1, createNotification(nag))
+    }
+
+    private fun createNotification(nag: Nag): Notification {
+        val onDismissIntent = Intent(this, OnDismissBroadcastReceiver::class.java)
+        val onDismissPendingIntent =
+            PendingIntent.getBroadcast(applicationContext, 0, onDismissIntent, 0)
+
         return notificationBuilder
-            .setContentTitle("Perma-Notification")
+            .setDeleteIntent(onDismissPendingIntent)
+            .setContentTitle("Next Nag")
+            .setContentText(nag.description)
             .setPriority(Notification.PRIORITY_DEFAULT)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setAutoCancel(false)
-            .setContentText("Here is some text.")
-            .setOngoing(true)
             .build()
     }
 
