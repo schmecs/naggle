@@ -1,4 +1,4 @@
-package com.rebeccablum.naggle
+package com.rebeccablum.naggle.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,7 +1,8 @@
-package com.rebeccablum.naggle
+package com.rebeccablum.naggle.ui
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.rebeccablum.naggle.models.Nag
 import java.time.Duration
 import java.time.OffsetDateTime
 

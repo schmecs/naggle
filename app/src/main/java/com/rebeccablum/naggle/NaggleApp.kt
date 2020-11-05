@@ -1,23 +1,18 @@
 package com.rebeccablum.naggle
 
 import android.app.Application
-import android.app.Notification
+import com.rebeccablum.naggle.di.initKoin
+import com.rebeccablum.naggle.notif.NagNotificationManager
+import org.koin.android.ext.android.inject
 
 class NaggleApp : Application() {
 
-    // TODO koin
-    private val nagDao: NagDao by lazy {
-        NaggleDatabase.getInstance(this.applicationContext).nagDao()
-    }
-    private val nagRepository by lazy {
-        NagRepository(nagDao)
-    }
-    private val nagNotificationManager by lazy {
-        NagNotificationManager(nagRepository, this)
-    }
+    private val nagNotificationManager: NagNotificationManager by inject()
 
     override fun onCreate() {
         super.onCreate()
+        initKoin()
+
         nagNotificationManager.start()
     }
 }

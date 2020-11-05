@@ -1,6 +1,7 @@
-package com.rebeccablum.naggle
+package com.rebeccablum.naggle.db
 
 import androidx.room.TypeConverter
+import com.rebeccablum.naggle.models.Priority
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 

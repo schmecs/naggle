@@ -1,4 +1,4 @@
-package com.rebeccablum.naggle
+package com.rebeccablum.naggle.notif
 
 import android.content.BroadcastReceiver
 import android.content.Context

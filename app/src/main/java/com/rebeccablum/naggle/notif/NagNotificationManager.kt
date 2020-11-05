@@ -1,31 +1,49 @@
-package com.rebeccablum.naggle
+package com.rebeccablum.naggle.notif
 
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
+import android.util.Log
+import com.rebeccablum.naggle.R
+import com.rebeccablum.naggle.models.Nag
+import com.rebeccablum.naggle.repo.NagRepository
 
 const val NAG_ID = "nag_id"
 const val CHANNEL_ID = "nag channel"
+const val ACTION_DISMISS_NAG = "com.rebeccablum.naggle.ACTION_DISMISS"
 
 class NagNotificationManager(
     private val nagRepository: NagRepository,
-    private val context: Context
+    private val context: Context,
+    private val notificationManager: NotificationManager
 ) {
 
     private val notificationBuilder: Notification.Builder by lazy {
         Notification.Builder(context, CHANNEL_ID)
     }
 
-    val notificationManager: NotificationManager =
-        context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
     fun start() {
         createNotificationChannel()
         displayNotificationOnNextNag()
+        registerReceiver()
+    }
+
+    private fun registerReceiver() {
+        val intentFilter = IntentFilter(ACTION_DISMISS_NAG)
+        context.registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Log.d(
+                    this@NagNotificationManager.javaClass.simpleName,
+                    "Dismissed: ${intent?.dataString}"
+                )
+            }
+        }, intentFilter)
     }
 
     private fun displayNotificationOnNextNag() {
@@ -49,6 +67,7 @@ class NagNotificationManager(
     private fun createNotification(nag: Nag): Notification {
         val onDismissIntent = Intent(context, OnDismissBroadcastReceiver::class.java).apply {
             extras?.putInt(NAG_ID, nag.id)
+            action = ACTION_DISMISS_NAG
         }
         val onDismissPendingIntent =
             PendingIntent.getBroadcast(context, 0, onDismissIntent, 0)

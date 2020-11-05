@@ -6,6 +6,6 @@
 
     <fragment
         android:id="@+id/nag_list_fragment"
-        android:name="com.rebeccablum.naggle.NagListFragment" />
+        android:name="com.rebeccablum.naggle.ui.NagListFragment" />
 
 </navigation>
