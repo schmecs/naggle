@@ -1,8 +1,5 @@
 package com.rebeccablum.naggle
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 
-class MainActivity : AppCompatActivity() {
-
-
-}
+class MainActivity : FragmentActivity(R.layout.activity_main)

@@ -1,25 +1,26 @@
 package com.rebeccablum.naggle
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.rebeccablum.naggle.Priority.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.time.OffsetDateTime
 
-object NagRepository {
+class NagRepository(private val dao: NagDao) {
 
-    val testNagList = mutableListOf(Nag("first nag", 1), Nag("second nag", 2), Nag("third nag", 3))
-    val getAllNags = MutableLiveData<List<Nag>>()
+    val testNagList = mutableListOf(
+        Nag(1, "first nag", HIGH, OffsetDateTime.now()),
+        Nag(2, "second nag", MEDIUM, OffsetDateTime.now().minusDays(1)),
+        Nag(3, "third nag", IMMEDIATELY, OffsetDateTime.now().minusDays(7))
+    )
+    val getAllNags = dao.getAllNags()
     val currentNag = Transformations.map(getAllNags) { it.firstOrNull() }
 
-    fun refreshAllNags() {
-        getAllNags.value = testNagList
-    }
-
-    fun switchFirstTwoNags() {
-        if (testNagList.size >= 2) {
-            val newSecond = testNagList[0]
-            val newFirst = testNagList[1]
-            testNagList[0] = newFirst
-            testNagList[1] = newSecond
+    suspend fun insertNags() {
+        withContext(Dispatchers.IO) {
+            testNagList.forEach {
+                dao.insert(it)
+            }
         }
-        refreshAllNags()
     }
 }
