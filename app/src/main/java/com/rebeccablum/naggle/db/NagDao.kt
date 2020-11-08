@@ -17,6 +17,9 @@ interface NagDao {
     @Query("SELECT * FROM nag") // TODO only nags that are not done
     fun getAllNags(): Flow<List<Nag>>
 
+    @Query("SELECT * FROM nag WHERE id == :id LIMIT 1")
+    suspend fun getNag(id: Int): Nag?
+
     @Update
     suspend fun update(nag: Nag)
 

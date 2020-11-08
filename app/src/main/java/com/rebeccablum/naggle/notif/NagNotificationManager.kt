@@ -10,7 +10,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
-import android.util.Log
 import com.rebeccablum.naggle.R
 import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.repo.NagRepository
@@ -57,9 +56,6 @@ class NagNotificationManager(
             }
         }
     }
-
-    // TODO handle interaction with notification
-
 
     private fun sendNotification(nag: Nag) {
         notificationManager.notify(NOTIFICATION_REQUEST_ID, createNotification(nag))
@@ -108,10 +104,10 @@ class NagNotificationManager(
     inner class NotificationDismissedReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == ACTION_DISMISS_NAG) {
-                Log.d(
-                    "TEST",
-                    "Dismissed: ${intent.getIntExtra(NAG_ID, -1)}"
-                )
+                val nagId = intent.getIntExtra(NAG_ID, -1)
+                coroutineScope.launch {
+                    nagRepository.markNagDismissed(nagId)
+                }
             }
         }
     }

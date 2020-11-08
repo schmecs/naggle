@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.OffsetDateTime
+import java.util.Collections.min
 
 class NagRepository(private val dao: NagDao) {
 
@@ -36,14 +37,19 @@ class NagRepository(private val dao: NagDao) {
 
     suspend fun getNagToNotify(): Flow<Nag> = withContext(Dispatchers.IO) {
         dao.getAllNags()
-            .map {
-                it.sortedWith(
+            .map { allNags ->
+                allNags.filter {
+                    it.timesDismissed == getMinimumTimesDismissed(allNags)
+                }.sortedWith(
                     // TODO make this a comparator on the Nag model
                     compareByDescending<Nag> { nag -> nag.priority.ordinal }
                         .thenBy { nag -> nag.startingAt }
-                        .thenByDescending { nag -> nag.timesDismissed }
                 ).first()
             }
+    }
+
+    private fun getMinimumTimesDismissed(allNags: List<Nag>): Int {
+        return min(allNags.map { it.timesDismissed })
     }
 
     suspend fun insertNags() {
@@ -54,9 +60,13 @@ class NagRepository(private val dao: NagDao) {
         }
     }
 
-    suspend fun markNagDismissed(nag: Nag) {
-        val newNag = nag.copy(timesDismissed = nag.timesDismissed + 1)
-        updateNag(newNag)
+    suspend fun markNagDismissed(nagId: Int) {
+        withContext(Dispatchers.IO) {
+            dao.getNag(nagId)?.let {
+                val newNag = it.copy(timesDismissed = it.timesDismissed + 1)
+                updateNag(newNag)
+            }
+        }
     }
 
     suspend fun updateNag(nag: Nag) {
