@@ -1,10 +1,11 @@
 package com.rebeccablum.naggle.repo
 
-import androidx.lifecycle.Transformations
 import com.rebeccablum.naggle.db.NagDao
 import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.models.Priority.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.OffsetDateTime
 
@@ -30,8 +31,20 @@ class NagRepository(private val dao: NagDao) {
             OffsetDateTime.now().minusDays(7)
         )
     )
-    val getAllNags = dao.getAllNags()
-    val currentNag = Transformations.map(getAllNags) { it.firstOrNull() }
+
+    fun getAllNags(): Flow<List<Nag>> = dao.getAllNags()
+
+    suspend fun getNagToNotify(): Flow<Nag> = withContext(Dispatchers.IO) {
+        dao.getAllNags()
+            .map {
+                it.sortedWith(
+                    // TODO make this a comparator on the Nag model
+                    compareByDescending<Nag> { nag -> nag.priority.ordinal }
+                        .thenBy { nag -> nag.startingAt }
+                        .thenByDescending { nag -> nag.timesDismissed }
+                ).first()
+            }
+    }
 
     suspend fun insertNags() {
         withContext(Dispatchers.IO) {
@@ -39,5 +52,14 @@ class NagRepository(private val dao: NagDao) {
                 dao.insert(it)
             }
         }
+    }
+
+    suspend fun markNagDismissed(nag: Nag) {
+        val newNag = nag.copy(timesDismissed = nag.timesDismissed + 1)
+        updateNag(newNag)
+    }
+
+    suspend fun updateNag(nag: Nag) {
+        dao.insert(nag)
     }
 }

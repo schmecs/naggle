@@ -9,7 +9,8 @@ data class Nag(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val description: String,
     val priority: Priority,
-    val startingAt: OffsetDateTime
+    val startingAt: OffsetDateTime,
+    val timesDismissed: Int = 0
 )
 
 enum class Priority {
