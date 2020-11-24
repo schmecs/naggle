@@ -7,6 +7,7 @@ import androidx.room.Room
 import com.rebeccablum.naggle.db.NaggleDatabase
 import com.rebeccablum.naggle.notif.NagNotificationManager
 import com.rebeccablum.naggle.repo.NagRepository
+import com.rebeccablum.naggle.ui.AddEditNagViewModel
 import com.rebeccablum.naggle.ui.NagListViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -48,4 +49,5 @@ private fun repositoryModule() = module {
 
 private fun viewModelModule() = module {
     viewModel { NagListViewModel(repository = get()) }
+    viewModel { AddEditNagViewModel(repository = get()) }
 }

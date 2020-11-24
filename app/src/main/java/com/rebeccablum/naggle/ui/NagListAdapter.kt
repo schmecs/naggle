@@ -10,9 +10,8 @@ import com.rebeccablum.naggle.R
 import com.rebeccablum.naggle.databinding.NagItemViewBinding
 import com.rebeccablum.naggle.models.Nag
 
-class NagListAdapter : ListAdapter<Nag, NagListAdapter.NagViewHolder>(
-    NagListDiffCallback()
-) {
+class NagListAdapter(private val viewModel: NagListViewModel) :
+    ListAdapter<Nag, NagListAdapter.NagViewHolder>(NagListDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NagViewHolder {
         return NagViewHolder(
@@ -26,7 +25,9 @@ class NagListAdapter : ListAdapter<Nag, NagListAdapter.NagViewHolder>(
     }
 
     override fun onBindViewHolder(holder: NagViewHolder, position: Int) {
+        val nag = getItem(position)
         holder.bind(getItem(position))
+        holder.itemView.setOnClickListener { viewModel.onNagSelected(nag) }
     }
 
     inner class NagViewHolder(private val binding: NagItemViewBinding) :

@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 const val NAG_ID = "nag_id"
@@ -51,9 +52,11 @@ class NagNotificationManager(
 
     private fun displayNotificationOnNextNag() {
         coroutineScope.launch {
-            nagRepository.getNagToNotify().collect {
-                sendNotification(it)
-            }
+            nagRepository.getNagToNotify()
+                .filterNotNull()
+                .collect {
+                    sendNotification(it)
+                }
         }
     }
 
