@@ -9,13 +9,13 @@ import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import com.rebeccablum.naggle.R
-import com.rebeccablum.naggle.databinding.FragmentAddNagDialogBinding
+import com.rebeccablum.naggle.databinding.FragmentAddEditNagDialogBinding
 import com.rebeccablum.naggle.models.Priority
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class AddEditNagDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentAddNagDialogBinding
+    private lateinit var binding: FragmentAddEditNagDialogBinding
     private lateinit var adapter: ArrayAdapter<Priority>
 
     private val addEditViewModel: NagListViewModel by sharedViewModel()
@@ -35,12 +35,9 @@ class AddEditNagDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentAddNagDialogBinding.inflate(inflater)
+        binding = FragmentAddEditNagDialogBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = addEditViewModel
-        binding.priorityDropdownMenu.setText(
-            addEditViewModel.priorityString.value ?: Priority.NORMAL.name, false
-        )
         adapter = ArrayAdapter(
             requireContext(),
             R.layout.support_simple_spinner_dropdown_item,

@@ -131,18 +131,32 @@
                 app:layout_constraintTop_toBottomOf="@+id/save" />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/completed"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/colorAccent"
+                android:onClick="@{() -> viewModel.onCompleted()}"
+                android:text="Mark completed"
+                android:visibility="@{viewModel.id != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cancel" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/delete"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="48dp"
                 android:onClick="@{() -> viewModel.onDelete()}"
                 android:text="Delete"
                 android:textColor="@android:color/holo_red_light"
                 android:visibility="@{viewModel.id != null ? View.VISIBLE : View.GONE}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cancel" />
+                app:layout_constraintTop_toBottomOf="@+id/completed" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

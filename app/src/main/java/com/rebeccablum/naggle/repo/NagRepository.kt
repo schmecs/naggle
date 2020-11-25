@@ -10,10 +10,10 @@ import java.util.Collections.min
 
 class NagRepository(private val dao: NagDao) {
 
-    fun getAllNags(): Flow<List<Nag>> = dao.getAllNags()
+    fun getTodoList(): Flow<List<Nag>> = dao.getTodoList()
 
     suspend fun getNagToNotify(): Flow<Nag?> = withContext(Dispatchers.IO) {
-        dao.getAllNags()
+        dao.getTodoList()
             .map { allNags ->
                 allNags.filter {
                     it.timesDismissed == getMinimumTimesDismissed(allNags)
@@ -35,10 +35,19 @@ class NagRepository(private val dao: NagDao) {
         }
     }
 
-    suspend fun markNagDismissed(nagId: Int) {
+    suspend fun markNagDismissed(id: Int) {
         withContext(Dispatchers.IO) {
-            dao.getNag(nagId)?.let {
+            dao.getNag(id)?.let {
                 val newNag = it.copy(timesDismissed = it.timesDismissed + 1)
+                addOrEditNag(newNag)
+            }
+        }
+    }
+
+    suspend fun markNagCompleted(id: Int) {
+        withContext(Dispatchers.IO) {
+            dao.getNag(id)?.let {
+                val newNag = it.copy(completed = true)
                 addOrEditNag(newNag)
             }
         }

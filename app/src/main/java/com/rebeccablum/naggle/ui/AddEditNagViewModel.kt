@@ -41,6 +41,13 @@ open class AddEditNagViewModel(private val repository: NagRepository) : ViewMode
         actionDismiss.call()
     }
 
+    fun onCompleted() {
+        viewModelScope.launch {
+            repository.markNagCompleted(id.value!!)
+            actionDismiss.call()
+        }
+    }
+
     fun onDelete() {
         viewModelScope.launch {
             repository.deleteNag(id.value!!)

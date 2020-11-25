@@ -20,7 +20,7 @@ class NagListViewModel(private val repository: NagRepository) : AddEditNagViewMo
 
     private fun updateAllNagsLiveData() {
         viewModelScope.launch {
-            repository.getAllNags().collect {
+            repository.getTodoList().collect {
                 nags.value = it
             }
         }
