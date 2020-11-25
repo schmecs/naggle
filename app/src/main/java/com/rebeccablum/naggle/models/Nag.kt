@@ -15,10 +15,7 @@ data class Nag(
 )
 
 enum class Priority {
-    OPTIONAL,
     LOW,
     NORMAL,
-    HIGH,
-    TODAY,
-    IMMEDIATELY
+    ASAP
 }
