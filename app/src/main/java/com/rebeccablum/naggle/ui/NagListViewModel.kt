@@ -6,6 +6,7 @@ import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.repo.NagRepository
 import com.rebeccablum.naggle.util.SingleLiveEvent
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 
@@ -20,9 +21,11 @@ class NagListViewModel(private val repository: NagRepository) : AddEditNagViewMo
 
     private fun updateAllNagsLiveData() {
         viewModelScope.launch {
-            repository.getTodoList().collect {
-                nags.value = it
-            }
+            repository.getTodoList()
+                .map { it.filter { nag -> nag.startingAt < OffsetDateTime.now() } }
+                .collect {
+                    nags.value = it
+                }
         }
     }
 

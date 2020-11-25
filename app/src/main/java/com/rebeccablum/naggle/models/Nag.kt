@@ -1,6 +1,7 @@
 package com.rebeccablum.naggle.models
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import java.time.OffsetDateTime
 
@@ -12,7 +13,10 @@ data class Nag(
     val startingAt: OffsetDateTime,
     val timesDismissed: Int = 0,
     val completed: Boolean = false
-)
+) {
+    @Ignore
+    val started = startingAt < OffsetDateTime.now()
+}
 
 enum class Priority {
     LOW,

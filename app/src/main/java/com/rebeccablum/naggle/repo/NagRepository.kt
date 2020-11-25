@@ -2,10 +2,13 @@ package com.rebeccablum.naggle.repo
 
 import com.rebeccablum.naggle.db.NagDao
 import com.rebeccablum.naggle.models.Nag
+import com.rebeccablum.naggle.models.Priority.ASAP
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.time.OffsetDateTime
 import java.util.Collections.min
 
 class NagRepository(private val dao: NagDao) {
@@ -16,13 +19,16 @@ class NagRepository(private val dao: NagDao) {
         dao.getTodoList()
             .map { allNags ->
                 allNags.filter {
-                    it.timesDismissed == getMinimumTimesDismissed(allNags)
+                    shouldNotify(it, getMinimumTimesDismissed(allNags))
                 }.sortedWith(
-                    // TODO make this a comparator on the Nag model
                     compareByDescending<Nag> { nag -> nag.priority.ordinal }
                         .thenBy { nag -> nag.startingAt }
                 ).firstOrNull()
             }
+    }
+
+    private fun shouldNotify(nag: Nag, minDismissals: Int): Boolean {
+        return nag.startingAt < OffsetDateTime.now() && (nag.priority == ASAP || nag.timesDismissed <= minDismissals)
     }
 
     private fun getMinimumTimesDismissed(allNags: List<Nag>): Int {
