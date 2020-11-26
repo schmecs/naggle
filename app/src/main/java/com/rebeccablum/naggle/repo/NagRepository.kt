@@ -5,10 +5,10 @@ import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.models.Priority.ASAP
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import java.time.OffsetDateTime
+import timber.log.Timber
+import java.lang.Exception
 import java.util.Collections.min
 
 class NagRepository(private val dao: NagDao) {
@@ -28,7 +28,7 @@ class NagRepository(private val dao: NagDao) {
     }
 
     private fun shouldNotify(nag: Nag, minDismissals: Int): Boolean {
-        return nag.startingAt < OffsetDateTime.now() && (nag.priority == ASAP || nag.timesDismissed <= minDismissals)
+        return nag.started && (nag.priority == ASAP || nag.timesDismissed <= minDismissals)
     }
 
     private fun getMinimumTimesDismissed(allNags: List<Nag>): Int {

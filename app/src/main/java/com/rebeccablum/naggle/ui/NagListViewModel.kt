@@ -22,7 +22,7 @@ class NagListViewModel(private val repository: NagRepository) : AddEditNagViewMo
     private fun updateAllNagsLiveData() {
         viewModelScope.launch {
             repository.getTodoList()
-                .map { it.filter { nag -> nag.startingAt < OffsetDateTime.now() } }
+                .map { it.sortedByDescending { nag -> nag.daysOld } }
                 .collect {
                     nags.value = it
                 }

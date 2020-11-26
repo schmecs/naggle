@@ -3,6 +3,7 @@ package com.rebeccablum.naggle.models
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import java.time.Duration
 import java.time.OffsetDateTime
 
 @Entity
@@ -15,7 +16,10 @@ data class Nag(
     val completed: Boolean = false
 ) {
     @Ignore
-    val started = startingAt < OffsetDateTime.now()
+    val started: Boolean = startingAt < OffsetDateTime.now()
+
+    @Ignore
+    val daysOld: Long = Duration.between(startingAt, OffsetDateTime.now()).toDays()
 }
 
 enum class Priority {

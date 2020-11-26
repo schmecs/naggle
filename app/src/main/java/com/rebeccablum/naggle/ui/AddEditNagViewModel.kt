@@ -32,8 +32,12 @@ open class AddEditNagViewModel(private val repository: NagRepository) : ViewMode
     fun onSave() {
         val valid = validate()
         if (valid) {
-            val nag = getNagFromInputs()
-            saveLocally(nag)
+            try {
+                val nag = getNagFromInputs()
+                saveLocally(nag)
+            } catch (e: Exception) {
+                errorDisplay.value = e.message
+            }
         }
     }
 
