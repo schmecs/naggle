@@ -42,6 +42,13 @@ class NagListViewModel(private val repository: NagRepository) : AddEditNagViewMo
         startTimeText.value = timeFormatter.format(OffsetDateTime.now())
     }
 
+    fun onOpenToNag(id: Int) {
+        viewModelScope.launch {
+            repository.getNag(id)?.let { fillValues(it) }
+            actionAddEditNag.call()
+        }
+    }
+
     fun onNagSelected(nag: Nag) {
         fillValues(nag)
         actionAddEditNag.call()

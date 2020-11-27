@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rebeccablum.naggle.databinding.FragmentNagListBinding
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -16,6 +17,7 @@ class NagListFragment : Fragment() {
     private lateinit var binding: FragmentNagListBinding
 
     private val viewModel: NagListViewModel by sharedViewModel()
+    private val args: NagListFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,6 +33,14 @@ class NagListFragment : Fragment() {
         binding.nagList.layoutManager = LinearLayoutManager(requireActivity())
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val nagId = args.nagId
+        if (nagId != -1) {
+            viewModel.onOpenToNag(nagId)
+        }
     }
 
     private fun subscribeUi(adapter: NagListAdapter) {

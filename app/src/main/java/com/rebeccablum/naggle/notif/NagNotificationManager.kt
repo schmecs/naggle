@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.os.Bundle
 import com.rebeccablum.naggle.R
 import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.repo.NagRepository
@@ -27,13 +28,14 @@ const val CHANNEL_ID = "naggle"
 const val CHANNEL_NAME = "com.rebeccablum.naggle"
 const val CHANNEL_DESCRIPTION = "Notify user of their tasks"
 const val ACTION_DISMISS_NAG = "com.rebeccablum.naggle.ACTION_DISMISS"
+const val ACTION_GO_TO_NAG = "com.rebeccablum.naggle.ACTION_GO_TO_NAG"
+const val ACTION_MARK_COMPLETE = "com.rebeccablum.naggle.ACTION_MARK_COMPLETE"
 
 class NagNotificationManager(
     private val nagRepository: NagRepository,
     private val context: Context,
     private val notificationManager: NotificationManager
 ) {
-
     private val notificationJob = Job()
     private val coroutineScope = CoroutineScope(notificationJob + Dispatchers.Main)
     private lateinit var receiver: BroadcastReceiver
@@ -66,9 +68,10 @@ class NagNotificationManager(
 
     private fun createNotification(nag: Nag): Notification {
 
-        val pendingIntent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }.run { PendingIntent.getActivity(context, 0, this, 0) }
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtras(Bundle().apply { putInt(NAG_ID, nag.id) })
+        val pendingIntent =
+            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val onDismissPendingIntent =
             Intent(ACTION_DISMISS_NAG).apply {

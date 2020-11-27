@@ -35,6 +35,12 @@ class NagRepository(private val dao: NagDao) {
         return min(allNags.map { it.timesDismissed })
     }
 
+    suspend fun getNag(id: Int): Nag? {
+        return withContext(Dispatchers.IO) {
+            dao.getNag(id)
+        }
+    }
+
     suspend fun addOrEditNag(nag: Nag) {
         withContext(Dispatchers.IO) {
             dao.insert(nag)

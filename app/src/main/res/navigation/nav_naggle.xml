@@ -2,10 +2,20 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_naggle"
-    app:startDestination="@id/nag_list_fragment">
+    app:startDestination="@id/nagListFragment">
 
     <fragment
-        android:id="@+id/nag_list_fragment"
-        android:name="com.rebeccablum.naggle.ui.NagListFragment" />
+        android:id="@+id/nagListFragment"
+        android:name="com.rebeccablum.naggle.ui.NagListFragment" >
+        <argument
+            android:name="nagId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+    </fragment>
+
+    <action
+        android:id="@+id/startNagListFragment"
+        app:destination="@+id/nagListFragment">
+    </action>
 
 </navigation>
