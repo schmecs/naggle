@@ -8,6 +8,19 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="DatePicker" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="materialCalendarHeaderTitle">@style/DatePicker.Title</item>
+        <item name="materialCalendarHeaderSelection">@style/DatePicker.Selection</item>
+    </style>
+
+    <style name="DatePicker.Title" parent="Widget.MaterialComponents.MaterialCalendar.HeaderTitle">
+        <item name="android:layout_marginTop">10dp</item>
+    </style>
+
+    <style name="DatePicker.Selection" parent="Widget.MaterialComponents.MaterialCalendar.HeaderSelection">
+        <item name="android:layout_marginTop">60dp</item>
+    </style>
+
     <style name="DialogTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">false</item>

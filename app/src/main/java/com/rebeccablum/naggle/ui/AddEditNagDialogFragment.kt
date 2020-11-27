@@ -8,10 +8,12 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.rebeccablum.naggle.R
 import com.rebeccablum.naggle.databinding.FragmentAddEditNagDialogBinding
 import com.rebeccablum.naggle.models.Priority
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import java.util.*
 
 class AddEditNagDialogFragment : DialogFragment() {
 
@@ -50,6 +52,21 @@ class AddEditNagDialogFragment : DialogFragment() {
             Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
         })
 
+        observeDateAndTimeClicks()
+
         return binding.root
+    }
+
+    private fun observeDateAndTimeClicks() {
+        addEditViewModel.actionEditDate.observe(this, Observer {
+            val builder = MaterialDatePicker.Builder.datePicker()
+            val currentTimeInMillis = Calendar.getInstance().timeInMillis
+            builder.setSelection(currentTimeInMillis)
+            builder.setTheme(R.style.DatePicker)
+            val picker = builder.build().apply {
+                addOnPositiveButtonClickListener { addEditViewModel.onDateSelected(it) }
+            }
+            picker.show(requireActivity().supportFragmentManager, picker.toString())
+        })
     }
 }

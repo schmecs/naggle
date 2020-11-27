@@ -85,6 +85,9 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:onClick="@{() -> viewModel.onEditDate()}"
                     android:text="@={viewModel.startDateText}"
                     tools:text="11/08/2020" />
             </com.google.android.material.textfield.TextInputLayout>
