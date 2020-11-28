@@ -1,5 +1,6 @@
 package com.rebeccablum.naggle.ui
 
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -67,6 +68,20 @@ class AddEditNagDialogFragment : DialogFragment() {
                 addOnPositiveButtonClickListener { addEditViewModel.onDateSelected(it) }
             }
             picker.show(requireActivity().supportFragmentManager, picker.toString())
+        })
+
+        addEditViewModel.actionEditTime.observe(this, Observer {
+            val cal = Calendar.getInstance()
+            val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+                addEditViewModel.onTimeSelected(hour, minute)
+            }
+            TimePickerDialog(
+                requireContext(),
+                timeSetListener,
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                false
+            ).show()
         })
     }
 }

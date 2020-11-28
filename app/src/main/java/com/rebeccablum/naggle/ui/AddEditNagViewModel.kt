@@ -8,7 +8,6 @@ import com.rebeccablum.naggle.models.Priority
 import com.rebeccablum.naggle.repo.NagRepository
 import com.rebeccablum.naggle.util.SingleLiveEvent
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -18,9 +17,10 @@ import java.util.*
 
 open class AddEditNagViewModel(private val repository: NagRepository) : ViewModel() {
 
-    val dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.getDefault())
-    val timeFormatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault())
-    val simpleTimeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    val dateFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.getDefault())
+    val timeFormatter: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("hh:mm a", Locale.getDefault())
     private val combinedFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a")
 
     val id = MutableLiveData<Int>()
@@ -39,7 +39,7 @@ open class AddEditNagViewModel(private val repository: NagRepository) : ViewMode
     }
 
     fun onEditTime() {
-
+        actionEditTime.call()
     }
 
     fun onDateSelected(dateMs: Long) {
@@ -49,8 +49,11 @@ open class AddEditNagViewModel(private val repository: NagRepository) : ViewMode
         startDateText.value = dateFormatter.format(offsetDateTime)
     }
 
-    fun onTimeSelected() {
-
+    fun onTimeSelected(hour: Int, minute: Int) {
+        val amPm = if (hour >= 12) "PM" else "AM"
+        val mod = hour % 12
+        val clockHour = if (mod == 0) 12 else mod
+        startTimeText.value = String.format("%02d:%02d %s", clockHour, minute, amPm)
     }
 
     fun onSave() {
