@@ -15,7 +15,7 @@ class NaggleApp : Application() {
         super.onCreate()
         initKoin()
 
-        NagNotificationService.enqueueWork(this, Intent())
+        nagNotificationManager.start()
     }
 
 }

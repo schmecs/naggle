@@ -15,6 +15,7 @@ class MainActivity : FragmentActivity(R.layout.activity_main) {
                 supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
             val navController = navHostFragment.navController
             val action = NagListFragmentDirections.startNagListFragment(nagId)
+            intent?.putExtra(NAG_ID, -1)
             navController.navigate(action)
         }
         super.onNewIntent(intent)
