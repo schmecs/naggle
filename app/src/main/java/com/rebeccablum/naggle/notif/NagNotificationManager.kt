@@ -62,20 +62,17 @@ class NagNotificationManager(
         notificationManager.notify(NOTIFICATION_REQUEST_ID, createNotification(nag))
     }
 
-    fun onNotificationDismissed(nagId: Int) {
-        coroutineScope.launch {
-            Timber.d("onNotificationDismissed: $nagId")
-            nagRepository.markNagDismissed(nagId)
-        }
+    fun cancelNotification() {
+        notificationManager.cancel(NOTIFICATION_REQUEST_ID)
     }
 
     private fun createNotification(nag: Nag): Notification {
 
-        val intent = Intent(context, MainActivity::class.java)
-        intent.putExtras(Bundle().apply { putInt(NAG_ID, nag.id) })
-        intent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES)
-        val pendingIntent =
-            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val mainIntent = Intent(context, MainActivity::class.java)
+        mainIntent.putExtras(Bundle().apply { putInt(NAG_ID, nag.id) })
+        mainIntent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES)
+        val mainPendingIntent =
+            PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val onDismissIntent =
             Intent(context, UpdateNotificationsReceiver::class.java).apply {
@@ -91,12 +88,27 @@ class NagNotificationManager(
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
 
+        val completeIntent = Intent(context, UpdateNotificationsReceiver::class.java).apply {
+            action = ACTION_MARK_COMPLETE
+            putExtra(NAG_ID, nag.id)
+            addFlags(FLAG_INCLUDE_STOPPED_PACKAGES)
+        }
+        val completePendingIntent = PendingIntent.getBroadcast(
+            context,
+            NOTIFICATION_REQUEST_ID,
+            completeIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val completeAction =
+            Notification.Action.Builder(null, "Mark complete", completePendingIntent).build()
+
         return Notification.Builder(context, CHANNEL_ID)
             .setChannelId(CHANNEL_ID)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(mainPendingIntent)
             .setDeleteIntent(onDismissPendingIntent)
             .setContentTitle("Do This Next")
             .setContentText(nag.description)
+            .addAction(completeAction)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setAutoCancel(false)
             .build()
