@@ -7,8 +7,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import timber.log.Timber
-import java.lang.Exception
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.util.*
+import java.util.Calendar.HOUR_OF_DAY
 import java.util.Collections.min
 
 class NagRepository(private val dao: NagDao) {
@@ -25,6 +29,35 @@ class NagRepository(private val dao: NagDao) {
                         .thenBy { nag -> nag.startingAt }
                 ).firstOrNull()
             }
+    }
+
+    fun getNextScheduledRefresh(): Flow<Calendar> {
+        return dao.getTodoList()
+            .map { allNags ->
+                allNags.filter {
+                    !it.started
+                }.map { it.startingAt }.minOrNull()?.let { nextStartTime ->
+                    minOf(nextStartTime, nextDailyRefresh())
+                } ?: nextDailyRefresh()
+            }
+            .map {
+                Calendar.getInstance().apply {
+                    this.timeInMillis = it.toInstant().toEpochMilli()
+                }
+            }
+    }
+
+    private fun nextDailyRefresh(): OffsetDateTime {
+        val now = Calendar.getInstance().time
+        val next9am = Calendar.getInstance().apply {
+            set(HOUR_OF_DAY, 9)
+            if (time < now) {
+                add(Calendar.DAY_OF_MONTH, 1)
+            }
+        }.timeInMillis
+        return OffsetDateTime.from(
+            Instant.ofEpochMilli(next9am).atZone(ZoneId.of("UTC"))
+        )
     }
 
     private fun shouldNotify(nag: Nag, minDismissals: Int): Boolean {

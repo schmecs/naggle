@@ -14,11 +14,14 @@ class UpdateNotificationsReceiver : BroadcastReceiver(), KoinComponent {
     override fun onReceive(context: Context?, intent: Intent?) {
         Timber.d("onReceive notification naggle")
         if (intent != null && context != null) {
-            if (intent.action in listOf(ACTION_DISMISS_NAG, ACTION_MARK_COMPLETE)) {
+            if (intent.action in listOf(ACTION_DISMISS, ACTION_MARK_COMPLETE, ACTION_REFRESH)) {
+                nagNotificationManager.start()
                 if (intent.action == ACTION_MARK_COMPLETE) {
                     nagNotificationManager.cancelNotification()
                 }
-                NagNotificationService.enqueueWork(context, intent)
+                if (intent.action in listOf(ACTION_DISMISS, ACTION_MARK_COMPLETE)) {
+                    NagNotificationService.enqueueWork(context, intent)
+                }
             }
         }
     }

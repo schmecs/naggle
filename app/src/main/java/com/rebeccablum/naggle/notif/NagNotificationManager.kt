@@ -17,17 +17,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 const val NAG_ID = "nag_id"
 const val NOTIFICATION_REQUEST_ID = 1000
 const val CHANNEL_ID = "naggle"
 const val CHANNEL_NAME = "com.rebeccablum.naggle"
 const val CHANNEL_DESCRIPTION = "Notify user of their tasks"
-const val ACTION_DISMISS_NAG = "com.rebeccablum.naggle.ACTION_DISMISS"
-const val ACTION_GO_TO_NAG = "com.rebeccablum.naggle.ACTION_EDIT"
+const val ACTION_DISMISS = "com.rebeccablum.naggle.ACTION_DISMISS"
+const val ACTION_EDIT_NAG = "com.rebeccablum.naggle.ACTION_EDIT"
 const val ACTION_MARK_COMPLETE = "com.rebeccablum.naggle.ACTION_MARK_COMPLETE"
 
 class NagNotificationManager(
@@ -35,23 +35,21 @@ class NagNotificationManager(
     private val context: Context,
     private val notificationManager: NotificationManager
 ) {
-    private val notificationJob = Job()
-    private val coroutineScope = CoroutineScope(notificationJob + Dispatchers.Main)
-
-    private var isStarted = false
+    private val notificationManagerJob = Job()
+    private var notificationJob: Job? = null
+    private val coroutineScope = CoroutineScope(notificationManagerJob + Dispatchers.Main)
 
     fun start() {
-        if (!isStarted) {
-            createNotificationChannel()
-            isStarted = true
-            getNextNotification()
-        }
+        createNotificationChannel()
+        getNextNotification()
     }
 
     private fun getNextNotification() {
-        coroutineScope.launch {
+        notificationJob?.cancel()
+        notificationJob = coroutineScope.launch {
             nagRepository.getNagToNotify()
                 .filterNotNull()
+                .distinctUntilChanged()
                 .collect {
                     sendNotification(it)
                 }
@@ -76,9 +74,8 @@ class NagNotificationManager(
 
         val onDismissIntent =
             Intent(context, UpdateNotificationsReceiver::class.java).apply {
-                action = ACTION_DISMISS_NAG
+                action = ACTION_DISMISS
                 putExtra(NAG_ID, nag.id)
-                addFlags(FLAG_INCLUDE_STOPPED_PACKAGES)
             }
         val onDismissPendingIntent =
             PendingIntent.getBroadcast(
@@ -91,7 +88,6 @@ class NagNotificationManager(
         val completeIntent = Intent(context, UpdateNotificationsReceiver::class.java).apply {
             action = ACTION_MARK_COMPLETE
             putExtra(NAG_ID, nag.id)
-            addFlags(FLAG_INCLUDE_STOPPED_PACKAGES)
         }
         val completePendingIntent = PendingIntent.getBroadcast(
             context,

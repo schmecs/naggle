@@ -24,7 +24,7 @@ class NagNotificationService : JobIntentService() {
 
     override fun onHandleWork(intent: Intent) {
         val nagId = intent.getIntExtra(NAG_ID, -1)
-        if (intent.action == ACTION_DISMISS_NAG) {
+        if (intent.action == ACTION_DISMISS) {
             coroutineScope.launch {
                 nagRepository.markNagDismissed(nagId)
             }
