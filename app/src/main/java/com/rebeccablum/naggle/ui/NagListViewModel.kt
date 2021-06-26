@@ -1,6 +1,7 @@
 package com.rebeccablum.naggle.ui
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.repo.NagRepository
@@ -10,10 +11,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.OffsetDateTime
 
-class NagListViewModel(private val repository: NagRepository) : AddEditNagViewModel(repository) {
+const val NEW_ITEM = -1
+
+class NagListViewModel(private val repository: NagRepository) : ViewModel() {
 
     val nags = MutableLiveData<List<Nag>>()
-    val actionAddEditNag = SingleLiveEvent<Unit>()
+    val actionAddEditNag = SingleLiveEvent<Int>()
 
     init {
         updateAllNagsLiveData()
@@ -30,35 +33,10 @@ class NagListViewModel(private val repository: NagRepository) : AddEditNagViewMo
     }
 
     fun onAddNagClicked() {
-        clearValues()
-        actionAddEditNag.call()
-    }
-
-    private fun clearValues() {
-        id.value = null
-        description.value = null
-        priorityString.value = null
-        startDateText.value = dateFormatter.format(OffsetDateTime.now())
-        startTimeText.value = timeFormatter.format(OffsetDateTime.now())
-    }
-
-    fun onOpenToNag(id: Int) {
-        viewModelScope.launch {
-            repository.getNag(id)?.let { fillValues(it) }
-            actionAddEditNag.call()
-        }
+        actionAddEditNag.value = NEW_ITEM
     }
 
     fun onNagSelected(nag: Nag) {
-        fillValues(nag)
-        actionAddEditNag.call()
-    }
-
-    private fun fillValues(nag: Nag) {
-        id.value = nag.id
-        description.value = nag.description
-        priorityString.value = nag.priority.name
-        startDateText.value = dateFormatter.format(nag.startingAt)
-        startTimeText.value = timeFormatter.format(nag.startingAt)
+        actionAddEditNag.value = nag.id
     }
 }

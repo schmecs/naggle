@@ -6,16 +6,26 @@
 
     <fragment
         android:id="@+id/nagListFragment"
-        android:name="com.rebeccablum.naggle.ui.NagListFragment" >
+        android:name="com.rebeccablum.naggle.ui.NagListFragment">
         <argument
             android:name="nagId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            android:defaultValue="-2"
+            app:argType="integer" />
+        <action
+            android:id="@+id/startNagListFragment"
+            app:destination="@+id/nagListFragment" />
+        <action
+            android:id="@+id/startAddEditNagFragment"
+            app:destination="@+id/addEditNagFragment" />
     </fragment>
 
-    <action
-        android:id="@+id/startNagListFragment"
-        app:destination="@+id/nagListFragment">
-    </action>
+    <fragment
+        android:id="@+id/addEditNagFragment"
+        android:name="com.rebeccablum.naggle.ui.AddEditNagFragment">
+        <argument
+            android:name="nagId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
 
 </navigation>

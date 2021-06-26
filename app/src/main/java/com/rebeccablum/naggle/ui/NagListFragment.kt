@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rebeccablum.naggle.databinding.FragmentNagListBinding
@@ -19,13 +19,21 @@ class NagListFragment : Fragment() {
     private val viewModel: NagListViewModel by sharedViewModel()
     private val args: NagListFragmentArgs by navArgs()
 
+    override fun onStart() {
+        super.onStart()
+        val nagId = args.nagId
+        if (nagId != NO_DESTINATION) {
+            findNavController().navigate(NagListFragmentDirections.startAddEditNagFragment(nagId))
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentNagListBinding.inflate(inflater, container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
         val adapter = NagListAdapter(viewModel)
         subscribeUi(adapter)
@@ -35,24 +43,14 @@ class NagListFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val nagId = args.nagId
-        if (nagId != -1) {
-            viewModel.onOpenToNag(nagId)
-        }
-    }
-
     private fun subscribeUi(adapter: NagListAdapter) {
-        viewModel.nags.observe(viewLifecycleOwner, Observer { adapter.submitList(it) })
-        viewModel.actionAddEditNag.observe(viewLifecycleOwner, Observer { showAddNagDialog() })
+        viewModel.nags.observe(viewLifecycleOwner, { adapter.submitList(it) })
+        viewModel.actionAddEditNag.observe(viewLifecycleOwner, { id ->
+            showAddNagDialog(id)
+        })
     }
 
-    private fun showAddNagDialog() {
-        val dialogFragment = AddEditNagDialogFragment()
-        dialogFragment.show(
-            requireActivity().supportFragmentManager,
-            AddEditNagDialogFragment::class.java.simpleName
-        )
+    private fun showAddNagDialog(id: Int) {
+        findNavController().navigate(NagListFragmentDirections.startAddEditNagFragment(id))
     }
 }

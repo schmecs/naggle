@@ -7,7 +7,9 @@ import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.models.Priority
 import com.rebeccablum.naggle.repo.NagRepository
 import com.rebeccablum.naggle.util.SingleLiveEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
@@ -26,13 +28,26 @@ open class AddEditNagViewModel(private val repository: NagRepository) : ViewMode
     val id = MutableLiveData<Int>()
     val description = MutableLiveData<String>()
     val priorityString = MutableLiveData<String>()
-    val startDateText = MutableLiveData<String>(dateFormatter.format(OffsetDateTime.now()))
-    val startTimeText = MutableLiveData<String>(timeFormatter.format(OffsetDateTime.now()))
+    val startDateText = MutableLiveData(dateFormatter.format(OffsetDateTime.now()))
+    val startTimeText = MutableLiveData(timeFormatter.format(OffsetDateTime.now()))
 
     val actionEditDate = SingleLiveEvent<Unit>()
     val actionEditTime = SingleLiveEvent<Unit>()
     val actionDismiss = SingleLiveEvent<Unit>()
     val errorDisplay = SingleLiveEvent<String>()
+
+    fun fillValues(nagId: Int) {
+        if (nagId != NEW_ITEM) {
+            viewModelScope.launch {
+                val nag = withContext(Dispatchers.IO) { repository.getNag(nagId) }!!
+                id.value = nag.id
+                description.value = nag.description
+                priorityString.value = nag.priority.name
+                startDateText.value = dateFormatter.format(nag.startingAt)
+                startTimeText.value = timeFormatter.format(nag.startingAt)
+            }
+        }
+    }
 
     fun onEditDate() {
         actionEditDate.call()

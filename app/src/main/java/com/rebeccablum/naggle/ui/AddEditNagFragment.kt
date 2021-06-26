@@ -7,37 +7,30 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.rebeccablum.naggle.R
 import com.rebeccablum.naggle.databinding.FragmentAddEditNagDialogBinding
 import com.rebeccablum.naggle.models.Priority
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
 
-class AddEditNagDialogFragment : DialogFragment() {
+class AddEditNagFragment : Fragment() {
 
     private lateinit var binding: FragmentAddEditNagDialogBinding
     private lateinit var adapter: ArrayAdapter<Priority>
 
-    private val addEditViewModel: NagListViewModel by sharedViewModel()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setStyle(STYLE_NORMAL, R.style.ThemeOverlay_AppCompat_Dialog)
-    }
-
-    override fun getTheme(): Int {
-        return R.style.DialogTheme
-    }
+    private val addEditViewModel: AddEditNagViewModel by viewModel()
+    private val args: AddEditNagFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentAddEditNagDialogBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = addEditViewModel
@@ -48,8 +41,12 @@ class AddEditNagDialogFragment : DialogFragment() {
         )
         binding.priorityDropdownMenu.setAdapter(adapter)
 
-        addEditViewModel.actionDismiss.observe(this, Observer { dismiss() })
-        addEditViewModel.errorDisplay.observe(this, Observer {
+        addEditViewModel.fillValues(args.nagId)
+
+        addEditViewModel.actionDismiss.observe(this, {
+            findNavController().popBackStack()
+        })
+        addEditViewModel.errorDisplay.observe(this, {
             Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
         })
 
