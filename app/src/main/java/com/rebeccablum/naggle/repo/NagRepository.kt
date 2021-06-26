@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.util.*
 import java.util.Calendar.HOUR_OF_DAY
 import java.util.Collections.min
@@ -22,10 +21,9 @@ class NagRepository(private val dao: NagDao) {
     suspend fun getNagToNotify(): Flow<Nag?> = withContext(Dispatchers.IO) {
         dao.getTodoList()
             .map { allNags ->
-                allNags.filter {
-                    shouldNotify(it, getMinimumTimesDismissed(allNags))
-                }.sortedWith(
+                allNags.filter { it.started }.sortedWith(
                     compareByDescending<Nag> { nag -> nag.priority.ordinal }
+                        .thenBy { nag -> nag.timesDismissed }
                         .thenBy { nag -> nag.startingAt }
                 ).firstOrNull()
             }
@@ -58,14 +56,6 @@ class NagRepository(private val dao: NagDao) {
         return OffsetDateTime.from(
             Instant.ofEpochMilli(next9am).atZone(ZoneId.of("UTC"))
         )
-    }
-
-    private fun shouldNotify(nag: Nag, minDismissals: Int): Boolean {
-        return nag.started && (nag.priority == ASAP || nag.timesDismissed <= minDismissals)
-    }
-
-    private fun getMinimumTimesDismissed(allNags: List<Nag>): Int {
-        return min(allNags.map { it.timesDismissed })
     }
 
     suspend fun getNag(id: Int): Nag? {
