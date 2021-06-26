@@ -19,5 +19,6 @@ class MainActivity : FragmentActivity(R.layout.activity_main) {
             navController.navigate(action)
         }
         super.onNewIntent(intent)
+        intent?.removeExtra(NAG_ID)
     }
 }
