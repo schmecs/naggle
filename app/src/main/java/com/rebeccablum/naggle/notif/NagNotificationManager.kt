@@ -3,12 +3,9 @@ package com.rebeccablum.naggle.notif
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_INCLUDE_STOPPED_PACKAGES
-import android.os.Build
-import android.os.Bundle
 import com.rebeccablum.naggle.R
 import com.rebeccablum.naggle.models.Nag
 import com.rebeccablum.naggle.repo.NagRepository
@@ -65,12 +62,21 @@ class NagNotificationManager(
     }
 
     private fun createNotification(nag: Nag): Notification {
+        val pendingIntentFlags = FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
 
-        val mainIntent = Intent(context, MainActivity::class.java)
-        mainIntent.putExtras(Bundle().apply { putInt(NAG_ID, nag.id) })
-        mainIntent.addFlags(FLAG_INCLUDE_STOPPED_PACKAGES)
-        val mainPendingIntent =
-            PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+//        val specificItemIntent = Intent(context, MainActivity::class.java)
+//        specificItemIntent.putExtra(NAG_ID, nag.id)
+//        val editPendingIntent = getBroadcast(
+//            context,
+//            NOTIFICATION_REQUEST_ID,
+//            specificItemIntent,
+//            pendingIntentFlags
+//        )
+//        val editAction = Notification.Action.Builder(null, "Edit item", editPendingIntent).build()
+
+        val listIntent = Intent(context, MainActivity::class.java)
+        val listPendingIntent =
+            getActivity(context, 0, listIntent, pendingIntentFlags)
 
         val onDismissIntent =
             Intent(context, UpdateNotificationsReceiver::class.java).apply {
@@ -78,46 +84,44 @@ class NagNotificationManager(
                 putExtra(NAG_ID, nag.id)
             }
         val onDismissPendingIntent =
-            PendingIntent.getBroadcast(
+            getBroadcast(
                 context,
                 NOTIFICATION_REQUEST_ID,
                 onDismissIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                pendingIntentFlags
             )
 
         val completeIntent = Intent(context, UpdateNotificationsReceiver::class.java).apply {
             action = ACTION_MARK_COMPLETE
             putExtra(NAG_ID, nag.id)
         }
-        val completePendingIntent = PendingIntent.getBroadcast(
+        val completePendingIntent = getBroadcast(
             context,
             NOTIFICATION_REQUEST_ID,
             completeIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            pendingIntentFlags
         )
         val completeAction =
             Notification.Action.Builder(null, "Mark complete", completePendingIntent).build()
 
         return Notification.Builder(context, CHANNEL_ID)
             .setChannelId(CHANNEL_ID)
-            .setContentIntent(mainPendingIntent)
+            .setContentIntent(listPendingIntent)
             .setDeleteIntent(onDismissPendingIntent)
             .setContentTitle("Do This Next")
             .setContentText(nag.description)
             .addAction(completeAction)
+//            .addAction(editAction)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setAutoCancel(false)
             .build()
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-                description = CHANNEL_DESCRIPTION
-            }
-            // Register the channel with the system
-            notificationManager.createNotificationChannel(channel)
+        val importance = NotificationManager.IMPORTANCE_HIGH
+        val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
+            description = CHANNEL_DESCRIPTION
         }
+        notificationManager.createNotificationChannel(channel)
     }
 }
