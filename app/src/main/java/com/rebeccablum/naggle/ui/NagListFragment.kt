@@ -1,5 +1,6 @@
 package com.rebeccablum.naggle.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,8 +20,8 @@ class NagListFragment : Fragment() {
     private val viewModel: NagListViewModel by sharedViewModel()
     private val args: NagListFragmentArgs by navArgs()
 
-    override fun onStart() {
-        super.onStart()
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
         val nagId = args.nagId
         if (nagId != NO_DESTINATION) {
             findNavController().navigate(NagListFragmentDirections.startAddEditNagFragment(nagId))
