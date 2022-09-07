@@ -8,7 +8,6 @@ import android.content.Intent
 import com.rebeccablum.naggle.repo.NagRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -21,11 +20,11 @@ class NagAlarmManager(
 ) {
     private val alarmSchedulingScope = CoroutineScope(Job())
 
-    fun scheduleNextRefresh() {
+    fun scheduleRefreshes() {
         alarmSchedulingScope.launch {
-            nagRepository.getNextScheduledRefresh().collect {
+            nagRepository.nextScheduledRefresh().collect {
                 Timber.d("Scheduling next alarm for ${it.time}")
-                alarmManager.setExact(RTC, it.timeInMillis, getAlarmPendingIntent())
+                alarmManager.setAndAllowWhileIdle(RTC, it.timeInMillis, getAlarmPendingIntent())
             }
         }
     }
@@ -39,7 +38,7 @@ class NagAlarmManager(
             context,
             NOTIFICATION_REQUEST_ID,
             alarmIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 }

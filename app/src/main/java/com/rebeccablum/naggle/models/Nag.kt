@@ -23,6 +23,7 @@ data class Nag(
 }
 
 enum class Priority {
+    LOW,
     NORMAL,
     ASAP
 }

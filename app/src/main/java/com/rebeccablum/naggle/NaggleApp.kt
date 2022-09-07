@@ -19,7 +19,7 @@ class NaggleApp : Application() {
         Timber.plant(Timber.DebugTree())
 
         nagNotificationManager.start()
-        nagAlarmManager.scheduleNextRefresh()
+        nagAlarmManager.scheduleRefreshes()
     }
 
 }

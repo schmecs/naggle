@@ -29,7 +29,7 @@ class NagRepository(private val dao: NagDao) {
             }
     }
 
-    fun getNextScheduledRefresh(): Flow<Calendar> {
+    fun nextScheduledRefresh(): Flow<Calendar> {
         return dao.getTodoList()
             .map { allNags ->
                 allNags.filter {
